@@ -31,8 +31,8 @@ cellHeight :: Float
 cellHeight = fromIntegral height / fromIntegral  n
 
 renderPlayer :: Player -> Picture
-renderPlayer X = color red $ rotate 45 $ pictures [rectangleSolid 90 10, rectangleSolid 10 90]
-renderPlayer O = color blue $ thickCircle 35 10
+renderPlayer X = color red $ rotate 45 $ pictures [rectangleSolid 90 15, rectangleSolid 15 90]
+renderPlayer O = color blue $ thickCircle 35 15
 renderPlayer _ = blank
 
 getPlayer :: Board -> (Int, Int) -> Player
@@ -54,17 +54,23 @@ renderGrid =  pictures
 renderBoard :: Board -> Picture
 renderBoard b = translate (fromIntegral width * (-0.5))
                           (fromIntegral height * (-0.5)) 
-                $   pictures $ [translate (fromIntegral y  * cellWidth + cellWidth * 0.5) (fromIntegral x  * cellHeight + cellHeight * 0.5)  $renderPlayer $ getPlayer b (x, y) | x <- [0..n], y <- [0..n] ] ++ [renderGrid] 
+                $   pictures $ [translate (fromIntegral y  * cellWidth + cellWidth * 0.5) (fromIntegral x  * cellHeight + cellHeight * 0.5)  $renderPlayer $ getPlayer b (x, y) | x <- [0..n - 1], y <- [0..n - 1] ] ++ [renderGrid] 
   
 
 nextState (EventKey (MouseButton LeftButton) Up _ pos) b =
-    if getPlayer b (toCellCoord pos) == Blank 
-    then M.insert (toCellCoord pos) X b
+    if getPlayer b (toCellCoord pos) == Blank && currentPlayer b == X
+            then M.insert (toCellCoord pos) X b
+    else if  getPlayer b (toCellCoord pos) == Blank && currentPlayer b == O
+            then M.insert (toCellCoord pos) O b
     else b
 nextState _ b = b    
 
 currentPlayer :: Board -> Player
-currentPlayer b = X
+currentPlayer b = if odd $ length $ movesOnBoard b then   X
+                  else  O
+                  
+movesOnBoard :: Board -> [(Int, Int)]
+movesOnBoard b = [(x, y) | x <- [0..n-1], y <- [0..n-1], getPlayer b (x, y) == Blank]
     
 toCellCoord :: (Float, Float) -> (Int, Int)
 toCellCoord (x, y) = (floor (( y + (fromIntegral height * 0.5)) / cellHeight), floor((x + (fromIntegral width * 0.5)) / cellWidth))                 
