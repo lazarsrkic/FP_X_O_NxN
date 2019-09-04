@@ -16,14 +16,19 @@ data Player = X | O | Blank deriving Eq
 data GameState = Running | GameOver  deriving Eq
 
 
-
-height = 720
+height = 480
 width = 480
 n = 3
+-- FIXME
+-- n :: IO Int
+-- n = do
+--   putStrLn "enter grid dimension: "
+--   input1 <- getLine
+--   let x = (read input1 :: Int)
+--   return (x)
 
 main :: IO ()
-main = do
-    play (InWindow "Tic-Tac-Toe" (height, width) (300, 300)) white 20 M.empty renderBoard nextState (const id)
+main =  play (InWindow "Tic-Tac-Toe" (height, width) (300, 300)) black 20 M.empty renderBoard nextState (const id)
 
 
 cellWidth :: Float
@@ -33,8 +38,8 @@ cellHeight :: Float
 cellHeight = fromIntegral height / fromIntegral  n
 
 renderPlayer :: Player -> Picture
-renderPlayer X = color red $ rotate 45 $ pictures [rectangleSolid 90 15, rectangleSolid 15 90]
-renderPlayer O = color blue $ thickCircle 35 15
+renderPlayer X = color red $ rotate 45 $ pictures [rectangleSolid (270 / fromIntegral n) (45 / fromIntegral n), rectangleSolid (45 / fromIntegral n) (270 / fromIntegral n)]
+renderPlayer O = color blue $ thickCircle (105 / fromIntegral n) (45 / fromIntegral n)
 renderPlayer _ = blank
 
 getPlayer :: Board -> (Int, Int) -> Player
@@ -73,8 +78,8 @@ calculatePlayerTurn pos b =  if getPlayer b (toCellCoord pos) == Blank && curren
 
 
 currentPlayer :: Board -> Player
-currentPlayer b = if odd $ length $ movesOnBoard b then   X
-                  else  O
+currentPlayer b = if  mod n 2 == 1 then if odd $ length $ movesOnBoard b  then  X else O
+                  else if odd $ length $ movesOnBoard b  then  O else X
                   
 movesOnBoard :: Board -> [(Int, Int)]
 movesOnBoard b = [(x, y) | x <- [0..n-1], y <- [0..n-1], getPlayer b (x, y) == Blank]
@@ -114,4 +119,4 @@ possibleMoves (x, y)  =
 
 outcomeColor b = if winner b == Just X  then red
                                      else if winner b == Just O then blue
-                                                                else  black
+                                                                else  white
