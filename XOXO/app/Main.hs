@@ -85,7 +85,7 @@ calculatePlayerTurnFromState pos state = if getPlayer (board state) (cellCoord p
                                               then M.insert (cellCoord pos state) X (board state)
                                          else if getPlayer (board state) (cellCoord pos state) == BlankP && currPlayer state == O
                                               then M.insert (cellCoord pos state) O (board state)
-                                         else M.insert (cellCoord pos state) BlankP (board state)
+                                        else board state
 
 currPlayer :: State -> Player
 currPlayer state = if mod (boardDim state) 2 == 1 then if odd $ length $ movesOnBoard state  then  X else O
